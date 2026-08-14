@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 
+import { createClient } from "@/services/client.service";
 import { createAppointment } from "@/services/appointment.service";
 
 interface AppointmentFormProps {
@@ -11,6 +12,8 @@ interface AppointmentFormProps {
 
 export function AppointmentForm({ onSuccess, onCancel }: AppointmentFormProps) {
   const [loading, setLoading] = useState(false);
+
+  const [saveAsClient, setSaveAsClient] = useState(false);
 
   const [form, setForm] = useState({
     clientName: "",
@@ -36,19 +39,32 @@ export function AppointmentForm({ onSuccess, onCancel }: AppointmentFormProps) {
     setLoading(true);
 
     try {
-      await createAppointment({
-        clientId: "",
-        clientName: form.clientName,
-        clientPhone: form.clientPhone,
+      let clientId: string | undefined;
 
-        condominium: form.condominium,
-        houseNumber: form.houseNumber,
+      if (saveAsClient) {
+        clientId = await createClient({
+          name: form.clientName.trim(),
+          phone: form.clientPhone.trim(),
+          condominium: form.condominium.trim(),
+          houseNumber: form.houseNumber.trim(),
+          notes: "",
+        });
+      }
+
+      await createAppointment({
+        clientId,
+
+        clientName: form.clientName.trim(),
+        clientPhone: form.clientPhone.trim(),
+
+        condominium: form.condominium.trim(),
+        houseNumber: form.houseNumber.trim(),
 
         date: form.date,
         startTime: form.startTime,
 
-        service: form.service,
-        notes: form.notes,
+        service: form.service.trim(),
+        notes: form.notes.trim(),
 
         status: "SCHEDULED",
       });
@@ -75,6 +91,26 @@ export function AppointmentForm({ onSuccess, onCancel }: AppointmentFormProps) {
             className="w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-black"
           />
         </div>
+
+        <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <input
+            type="checkbox"
+            checked={saveAsClient}
+            onChange={(event) => setSaveAsClient(event.target.checked)}
+            disabled={loading}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+
+          <div>
+            <p className="text-sm font-medium text-gray-700">
+              Salvar cliente para futuros atendimentos
+            </p>
+
+            <p className="text-xs text-gray-500">
+              Os dados serão salvos no cadastro de clientes.
+            </p>
+          </div>
+        </label>
 
         <div>
           <label className="mb-2 block text-sm font-medium">Telefone</label>

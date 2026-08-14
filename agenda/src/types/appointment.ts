@@ -6,7 +6,7 @@ export type AppointmentStatus =
 export interface Appointment {
   id: string;
 
-  clientId: string;
+  clientId?: string;
   clientName: string;
   clientPhone?: string;
 
