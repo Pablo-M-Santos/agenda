@@ -1,99 +1,112 @@
-import {
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  Plus,
-} from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { AppLayout } from "@/components/layout/AppLayout";
 
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+
+import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
+
+import { CondominiumSummary } from "@/components/dashboard/CondominiumSummary";
+
+import { getAppointments } from "@/services/appointment.service";
+
+import type { Appointment } from "@/types/appointment";
+
+import { dateToString, getDateRange } from "@/utils/appointment";
+
 export default function DashboardPage() {
+  const router = useRouter();
+
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getAppointments();
+
+        setAppointments(data);
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  const today = dateToString(new Date());
+
+  const { start, end } = getDateRange(7);
+
+  const todayAppointments = appointments.filter(
+    (appointment) =>
+      appointment.date === today && appointment.status !== "CANCELLED",
+  );
+
+  const nextSevenDays = appointments.filter(
+    (appointment) =>
+      appointment.date >= start &&
+      appointment.date <= end &&
+      appointment.status !== "CANCELLED",
+  );
+
+  const completed = appointments.filter(
+    (appointment) => appointment.status === "COMPLETED",
+  );
+
+  const upcoming = appointments
+    .filter(
+      (appointment) =>
+        appointment.date >= today && appointment.status === "SCHEDULED",
+    )
+    .sort((a, b) => {
+      const dateA = `${a.date} ${a.startTime}`;
+
+      const dateB = `${b.date} ${b.startTime}`;
+
+      return dateA.localeCompare(dateB);
+    })
+    .slice(0, 5);
+
   return (
     <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">
-            Olá! 👋
-          </h1>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
 
-          <p className="text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500">
             Aqui está um resumo da sua agenda.
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-xl border bg-white p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Serviços hoje
-              </span>
-
-              <CalendarDays className="h-5 w-5 text-gray-400" />
-            </div>
-
-            <p className="mt-3 text-3xl font-bold">
-              0
-            </p>
+        {loading ? (
+          <div className="rounded-xl border bg-white p-12 text-center">
+            <p className="text-sm text-gray-500">Carregando agenda...</p>
           </div>
+        ) : (
+          <>
+            <DashboardStats
+              today={todayAppointments.length}
+              nextSevenDays={nextSevenDays.length}
+              completed={completed.length}
+            />
 
-          <div className="rounded-xl border bg-white p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Próximos serviços
-              </span>
+            <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+              <UpcomingAppointments
+                appointments={upcoming}
+                onViewAll={() => router.push("/agendamentos")}
+              />
 
-              <Clock className="h-5 w-5 text-gray-400" />
+              <CondominiumSummary appointments={nextSevenDays} />
             </div>
-
-            <p className="mt-3 text-3xl font-bold">
-              0
-            </p>
-          </div>
-
-          <div className="rounded-xl border bg-white p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Concluídos
-              </span>
-
-              <CheckCircle2 className="h-5 w-5 text-gray-400" />
-            </div>
-
-            <p className="mt-3 text-3xl font-bold">
-              0
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl border bg-white p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-semibold">
-                Próximos atendimentos
-              </h2>
-
-              <p className="text-sm text-gray-500">
-                Seus próximos serviços aparecerão aqui.
-              </p>
-            </div>
-
-            <button className="flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
-              <Plus className="h-4 w-4" />
-
-              Novo agendamento
-            </button>
-          </div>
-
-          <div className="flex min-h-40 items-center justify-center">
-            <div className="text-center">
-              <CalendarDays className="mx-auto h-8 w-8 text-gray-300" />
-
-              <p className="mt-2 text-sm text-gray-500">
-                Nenhum atendimento agendado.
-              </p>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </AppLayout>
   );

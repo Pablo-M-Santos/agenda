@@ -56,3 +56,29 @@ export function formatAppointmentDay(dateString: string) {
     month: "2-digit",
   }).format(date);
 }
+
+export function getDateRange(days: number) {
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+
+  const end = new Date(today);
+
+  end.setDate(end.getDate() + days);
+
+  return {
+    start: dateToString(today),
+    end: dateToString(end),
+  };
+}
+
+export function isDateInRange(
+  date: string,
+  start: string,
+  end: string
+) {
+  return (
+    date >= start &&
+    date <= end
+  );
+}

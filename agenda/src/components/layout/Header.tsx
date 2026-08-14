@@ -1,37 +1,65 @@
 "use client";
 
-import { LogOut } from "lucide-react";
-import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import {
+  Menu,
+  UserCircle,
+} from "lucide-react";
 
-import { auth } from "@/lib/firebase/auth";
+interface HeaderProps {
+  onMenuClick: () => void;
+}
 
-export function Header() {
-  const router = useRouter();
-
-  async function handleLogout() {
-    await signOut(auth);
-
-    router.replace("/login");
-  }
-
+export function Header({
+  onMenuClick,
+}: HeaderProps) {
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-6">
-      <div>
-        <h1 className="font-semibold">Agenda</h1>
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-white/[0.06] bg-[#05070A]/90 px-4 backdrop-blur-xl md:px-6">
+      {/* Mobile */}
+      <button
+        type="button"
+        onClick={onMenuClick}
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0D1117] text-slate-400 transition hover:bg-white/[0.05] hover:text-white md:hidden"
+        aria-label="Abrir menu"
+      >
+        <Menu className="h-4 w-4" />
+      </button>
 
-        <p className="text-xs text-gray-500">
+      {/* Desktop */}
+      <div className="hidden md:block">
+        <p className="text-sm font-medium text-slate-300">
           Organização dos seus atendimentos
         </p>
       </div>
 
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-gray-100"
-      >
-        <LogOut className="h-4 w-4" />
-        Sair
-      </button>
+      {/* Logo mobile */}
+      <div className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 md:hidden">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600/10">
+          <span className="text-sm text-blue-400">
+            ⚡
+          </span>
+        </div>
+
+        <span className="text-sm font-semibold tracking-wide text-white">
+          AGENDA
+        </span>
+      </div>
+
+      {/* User */}
+      <div className="flex items-center gap-3">
+        <div className="hidden text-right sm:block">
+          <p className="text-xs font-medium text-slate-300">
+            Usuário
+          </p>
+
+          <p className="text-[11px] text-slate-600">
+            Minha conta
+          </p>
+        </div>
+
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0D1117]">
+          <UserCircle className="h-4 w-4 text-slate-500" />
+        </div>
+      </div>
     </header>
   );
 }

@@ -5,8 +5,12 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "Agenda Elétrica",
-  description: "Sistema de agendamento",
+  title: {
+    default: "Agenda",
+    template: "%s | Agenda",
+  },
+  description:
+    "Sistema simples para organizar seus atendimentos e compromissos.",
 };
 
 export default function RootLayout({
@@ -16,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="min-h-screen bg-[#05070A] text-slate-100 antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>

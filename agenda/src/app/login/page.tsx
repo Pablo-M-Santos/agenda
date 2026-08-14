@@ -1,7 +1,13 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Eye, EyeOff, Loader2, Zap } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  Zap,
+  ArrowRight,
+} from "lucide-react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +23,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     if (loading) return;
@@ -26,57 +34,90 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
 
       router.replace("/dashboard");
     } catch (error) {
-      console.error("Erro ao realizar login:", error);
+      console.error(
+        "Erro ao realizar login:",
+        error
+      );
 
-      setError("E-mail ou senha inválidos.");
+      setError(
+        "E-mail ou senha inválidos."
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 px-4 py-8">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#05070A] px-4 py-8">
       {/* Background */}
-      <div className="absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400/10 blur-3xl" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+      >
+        {/* Glow azul */}
+        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/10 blur-[120px]" />
+
+        {/* Glow ciano */}
+        <div className="absolute left-[20%] top-[15%] h-64 w-64 rounded-full bg-cyan-400/[0.04] blur-[100px]" />
+
+        {/* Grid sutil */}
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
       </div>
 
-      <div className="relative w-full max-w-md">
+      {/* Conteúdo */}
+      <div className="relative z-10 w-full max-w-[420px]">
         {/* Logo */}
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-lg shadow-amber-400/20">
-            <Zap className="h-7 w-7 fill-current" />
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/10 shadow-[0_0_40px_rgba(37,99,235,0.12)]">
+            <Zap className="h-7 w-7 fill-blue-400 text-blue-400" />
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            Agenda Elétrica
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
+            AGENDA
           </h1>
 
           <p className="mt-2 text-sm text-slate-400">
-            Organize seus atendimentos de forma simples.
+            Sua agenda, organizada.
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-white/10 bg-white p-6 shadow-2xl sm:p-8">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Entrar</h2>
+        <div className="rounded-2xl border border-white/[0.08] bg-[#0D1117]/95 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+          {/* Header */}
+          <div className="mb-7">
+            <h2 className="text-xl font-semibold text-white">
+              Entrar
+            </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Informe seus dados para acessar sua agenda.
+            <p className="mt-1.5 text-sm leading-6 text-slate-400">
+              Acesse sua agenda de atendimentos.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             {/* E-mail */}
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm font-medium text-slate-700"
+                className="mb-2 block text-sm font-medium text-slate-300"
               >
                 E-mail
               </label>
@@ -86,13 +127,15 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
                 placeholder="seu@email.com"
                 autoComplete="email"
                 autoFocus
                 required
                 disabled={loading}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+                className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
 
@@ -101,17 +144,17 @@ export default function LoginPage() {
               <div className="mb-2 flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-slate-700"
+                  className="block text-sm font-medium text-slate-300"
                 >
                   Senha
                 </label>
 
                 <button
                   type="button"
-                  className="text-xs font-medium text-slate-500 transition hover:text-slate-900"
                   onClick={() => {
-                    // Implementaremos recuperação de senha depois.
+                    // Implementaremos depois.
                   }}
+                  className="text-xs font-medium text-slate-500 transition hover:text-blue-400"
                 >
                   Esqueci minha senha
                 </button>
@@ -121,22 +164,38 @@ export default function LoginPage() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) =>
+                    setPassword(
+                      event.target.value
+                    )
+                  }
                   placeholder="Digite sua senha"
                   autoComplete="current-password"
                   required
                   disabled={loading}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+                  className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword((current) => !current)}
+                  onClick={() =>
+                    setShowPassword(
+                      (current) => !current
+                    )
+                  }
                   disabled={loading}
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition hover:text-slate-700 disabled:cursor-not-allowed"
+                  aria-label={
+                    showPassword
+                      ? "Ocultar senha"
+                      : "Mostrar senha"
+                  }
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-500 transition hover:bg-white/5 hover:text-slate-300 disabled:cursor-not-allowed"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -151,7 +210,7 @@ export default function LoginPage() {
             {error && (
               <div
                 role="alert"
-                className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600"
+                className="rounded-xl border border-red-500/20 bg-red-500/[0.06] px-4 py-3 text-sm text-red-400"
               >
                 {error}
               </div>
@@ -161,7 +220,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-950/10 disabled:cursor-not-allowed disabled:opacity-60"
+              className="group flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>
@@ -169,16 +228,26 @@ export default function LoginPage() {
                   Entrando...
                 </>
               ) : (
-                "Entrar"
+                <>
+                  Entrar
+
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </>
               )}
             </button>
           </form>
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-slate-500">
-          Agenda Elétrica · Controle de atendimentos
-        </p>
+        <div className="mt-6 text-center">
+          <p className="text-xs text-slate-600">
+            AGENDA
+            <span className="mx-2 text-slate-700">
+              ·
+            </span>
+            Controle de atendimentos
+          </p>
+        </div>
       </div>
     </main>
   );

@@ -2,11 +2,7 @@
 
 import { Search } from "lucide-react";
 
-export type AppointmentPeriod =
-  | "ALL"
-  | "TODAY"
-  | "TOMORROW"
-  | "NEXT_7_DAYS";
+export type AppointmentPeriod = "ALL" | "TODAY" | "TOMORROW" | "NEXT_7_DAYS";
 
 interface AppointmentFiltersProps {
   period: AppointmentPeriod;
@@ -15,13 +11,9 @@ interface AppointmentFiltersProps {
 
   condominiums: string[];
 
-  onPeriodChange: (
-    period: AppointmentPeriod
-  ) => void;
+  onPeriodChange: (period: AppointmentPeriod) => void;
 
-  onCondominiumChange: (
-    condominium: string
-  ) => void;
+  onCondominiumChange: (condominium: string) => void;
 
   onSearchChange: (search: string) => void;
 }
@@ -36,11 +28,11 @@ export function AppointmentFilters({
   onSearchChange,
 }: AppointmentFiltersProps) {
   return (
-    <div className="rounded-xl border bg-white p-4">
-      <div className="grid gap-4 lg:grid-cols-[1fr_220px_280px]">
+    <div className="rounded-2xl border border-white/[0.08] bg-[#0D1117] p-4 shadow-sm">
+      <div className="grid gap-5 lg:grid-cols-[1fr_220px_280px]">
         {/* Período */}
         <div>
-          <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-gray-500">
+          <label className="mb-2.5 block text-[11px] font-semibold uppercase tracking-widest text-slate-600">
             Período
           </label>
 
@@ -62,24 +54,34 @@ export function AppointmentFilters({
                 value: "ALL",
                 label: "Todos",
               },
-            ].map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() =>
-                  onPeriodChange(
-                    option.value as AppointmentPeriod
-                  )
-                }
-                className={`rounded-lg border px-3 py-2 text-sm transition ${
-                  period === option.value
-                    ? "border-black bg-black text-white"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
+            ].map((option) => {
+              const active = period === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() =>
+                    onPeriodChange(option.value as AppointmentPeriod)
+                  }
+                  className={`
+                  rounded-xl border px-3 py-2
+                  text-sm font-medium
+                  transition
+                  focus:outline-none
+                  focus:ring-4
+                  focus:ring-blue-500/10
+                  ${
+                    active
+                      ? "border-blue-500/30 bg-blue-500/10 text-blue-400 shadow-sm shadow-blue-500/5"
+                      : "border-white/[0.08] bg-[#080B10] text-slate-500 hover:border-white/[0.12] hover:bg-white/[0.03] hover:text-slate-200"
+                  }
+                `}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -87,7 +89,7 @@ export function AppointmentFilters({
         <div>
           <label
             htmlFor="condominium-filter"
-            className="mb-2 block text-xs font-medium uppercase tracking-wide text-gray-500"
+            className="mb-2.5 block text-[11px] font-semibold uppercase tracking-widest text-slate-600"
           >
             Condomínio
           </label>
@@ -95,12 +97,8 @@ export function AppointmentFilters({
           <select
             id="condominium-filter"
             value={condominium}
-            onChange={(event) =>
-              onCondominiumChange(
-                event.target.value
-              )
-            }
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-black"
+            onChange={(event) => onCondominiumChange(event.target.value)}
+            className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] px-3 py-2.5 text-sm text-slate-300 outline-none transition hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10"
           >
             <option value="">Todos</option>
 
@@ -116,22 +114,20 @@ export function AppointmentFilters({
         <div>
           <label
             htmlFor="appointment-search"
-            className="mb-2 block text-xs font-medium uppercase tracking-wide text-gray-500"
+            className="mb-2.5 block text-[11px] font-semibold uppercase tracking-widest text-slate-600"
           >
             Buscar
           </label>
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
 
             <input
               id="appointment-search"
               value={search}
-              onChange={(event) =>
-                onSearchChange(event.target.value)
-              }
+              onChange={(event) => onSearchChange(event.target.value)}
               placeholder="Cliente, casa ou serviço..."
-              className="w-full rounded-lg border border-gray-200 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-black"
+              className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] py-2.5 pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10"
             />
           </div>
         </div>

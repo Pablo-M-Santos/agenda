@@ -127,9 +127,17 @@ export default function AppointmentsPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Agendamentos</h1>
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-500/10">
+                <CalendarDays className="h-4 w-4 text-blue-400" />
+              </div>
 
-            <p className="text-sm text-gray-500">
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                Agendamentos
+              </h1>
+            </div>
+
+            <p className="mt-2 text-sm text-slate-500">
               Gerencie seus próximos atendimentos.
             </p>
           </div>
@@ -137,13 +145,14 @@ export default function AppointmentsPage() {
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+            className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
           >
             <Plus className="h-4 w-4" />
             Novo agendamento
           </button>
         </div>
 
+        {/* Filtros */}
         <AppointmentFilters
           period={period}
           condominium={condominium}
@@ -154,6 +163,7 @@ export default function AppointmentsPage() {
           onSearchChange={setSearch}
         />
 
+        {/* Calendário */}
         <AppointmentCalendar
           appointments={filteredAppointments}
           selectedDate={selectedDate}
@@ -162,87 +172,116 @@ export default function AppointmentsPage() {
           onMonthChange={setCalendarMonth}
         />
 
+        {/* Agenda do dia */}
         <SelectedDateAppointments
           date={selectedDate}
           appointments={filteredAppointments}
         />
+
         {/* Lista */}
-        <div className="rounded-xl border bg-white">
+        <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0D1117] shadow-sm">
           {loading ? (
             <div className="flex min-h-48 items-center justify-center">
-              <p className="text-sm text-gray-500">
-                Carregando agendamentos...
-              </p>
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500/20 border-t-blue-400" />
+
+                <p className="text-sm text-slate-600">
+                  Carregando agendamentos...
+                </p>
+              </div>
             </div>
           ) : filteredAppointments.length === 0 ? (
-            <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
-              <CalendarDays className="h-10 w-10 text-gray-300" />
+            /* Estado vazio */
+            <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#080B10]">
+                <CalendarDays className="h-5 w-5 text-slate-600" />
+              </div>
 
-              <h2 className="mt-4 font-semibold">
+              <h2 className="mt-4 font-semibold text-slate-200">
                 {appointments.length === 0
                   ? "Nenhum agendamento"
                   : "Nenhum agendamento encontrado"}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 max-w-sm text-sm text-slate-600">
                 {appointments.length === 0
-                  ? "Crie seu primeiro atendimento."
-                  : "Tente alterar os filtros da agenda."}
+                  ? "Crie seu primeiro atendimento para começar a organizar sua agenda."
+                  : "Tente alterar os filtros para encontrar outros atendimentos."}
               </p>
 
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="mt-5 flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                className="mt-5 flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
                 <Plus className="h-4 w-4" />
-                Criar primeiro agendamento
+
+                {appointments.length === 0
+                  ? "Criar primeiro agendamento"
+                  : "Novo agendamento"}
               </button>
             </div>
           ) : (
-            <div className="divide-y">
+            /* Lista */
+            <div className="divide-y divide-white/[0.05]">
               {filteredAppointments.map((appointment) => {
                 const isLoading = actionLoading === appointment.id;
 
                 const canChangeStatus = appointment.status === "SCHEDULED";
 
                 return (
-                  <div key={appointment.id} className="p-5">
+                  <div
+                    key={appointment.id}
+                    className="p-5 transition hover:bg-white/[0.015]"
+                  >
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                      {/* Informações */}
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-slate-200">
                             {appointment.clientName}
                           </h3>
 
                           <AppointmentStatusBadge status={appointment.status} />
                         </div>
 
-                        <p className="mt-2 text-sm text-gray-600">
-                          {appointment.condominium} · Casa{" "}
-                          {appointment.houseNumber}
+                        <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
+                          <span className="text-slate-600">
+                            {appointment.condominium}
+                          </span>
+
+                          <span className="text-slate-700">·</span>
+
+                          <span>Casa {appointment.houseNumber}</span>
                         </p>
 
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-slate-400">
                           {appointment.service}
                         </p>
 
                         {appointment.notes && (
-                          <p className="mt-2 text-sm text-gray-400">
+                          <p className="mt-2 max-w-2xl text-sm text-slate-600">
                             {appointment.notes}
                           </p>
                         )}
                       </div>
 
+                      {/* Data / ações */}
                       <div className="flex flex-col gap-3 lg:items-end">
-                        <div className="text-sm">
-                          <p className="font-semibold text-gray-900">
-                            {formatAppointmentDate(appointment.date)}
-                          </p>
+                        <div className="flex items-center gap-2 lg:text-right">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-[#080B10] lg:hidden">
+                            <CalendarDays className="h-4 w-4 text-blue-400" />
+                          </div>
 
-                          <p className="text-gray-500">
-                            {appointment.startTime}
-                          </p>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-200">
+                              {formatAppointmentDate(appointment.date)}
+                            </p>
+
+                            <p className="mt-0.5 text-sm text-blue-400">
+                              {appointment.startTime}
+                            </p>
+                          </div>
                         </div>
 
                         {canChangeStatus && (
@@ -253,9 +292,9 @@ export default function AppointmentsPage() {
                               onClick={() =>
                                 handleStatusChange(appointment.id, "COMPLETED")
                               }
-                              className="flex items-center gap-2 rounded-lg border border-green-200 px-3 py-2 text-xs font-medium text-green-700 hover:bg-green-50 disabled:opacity-50"
+                              className="flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] px-3 py-2 text-xs font-medium text-emerald-400 transition hover:border-emerald-400/25 hover:bg-emerald-400/10 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              <Check className="h-4 w-4" />
+                              <Check className="h-3.5 w-3.5" />
                               Concluir
                             </button>
 
@@ -265,9 +304,9 @@ export default function AppointmentsPage() {
                               onClick={() =>
                                 handleStatusChange(appointment.id, "CANCELLED")
                               }
-                              className="flex items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                              className="flex items-center gap-2 rounded-xl border border-red-400/15 bg-red-400/[0.05] px-3 py-2 text-xs font-medium text-red-400 transition hover:border-red-400/25 hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3.5 w-3.5" />
                               Cancelar
                             </button>
                           </div>

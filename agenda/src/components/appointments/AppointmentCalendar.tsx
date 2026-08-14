@@ -80,36 +80,38 @@ export function AppointmentCalendar({
   }).format(currentMonth);
 
   return (
-    <div className="rounded-xl border bg-white">
+    <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0D1117] shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-4 py-4">
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-4">
         <button
           type="button"
           onClick={goToPreviousMonth}
-          className="rounded-lg p-2 hover:bg-gray-100"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-[#080B10] text-slate-500 transition hover:border-white/[0.12] hover:bg-white/[0.03] hover:text-white"
           aria-label="Mês anterior"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
         </button>
 
-        <h2 className="text-lg font-semibold capitalize">{monthLabel}</h2>
+        <h2 className="text-lg font-semibold capitalize text-white">
+          {monthLabel}
+        </h2>
 
         <button
           type="button"
           onClick={goToNextMonth}
-          className="rounded-lg p-2 hover:bg-gray-100"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-[#080B10] text-slate-500 transition hover:border-white/[0.12] hover:bg-white/[0.03] hover:text-white"
           aria-label="Próximo mês"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
       {/* Semana */}
-      <div className="grid grid-cols-7 border-b">
+      <div className="grid grid-cols-7 border-b border-white/[0.06] bg-[#080B10]">
         {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((day) => (
           <div
             key={day}
-            className="p-3 text-center text-xs font-medium text-gray-500"
+            className="border-r border-white/[0.04] p-3 text-center text-[10px] font-semibold uppercase tracking-widest text-slate-600 last:border-r-0"
           >
             {day}
           </div>
@@ -123,7 +125,7 @@ export function AppointmentCalendar({
             return (
               <div
                 key={`empty-${index}`}
-                className="min-h-24 border-b border-r bg-gray-50/50"
+                className="min-h-24 border-b border-r border-white/[0.05] bg-[#080B10]/50"
               />
             );
           }
@@ -141,38 +143,65 @@ export function AppointmentCalendar({
               key={dateString}
               type="button"
               onClick={() => onDateSelect(dateString)}
-              className={`min-h-24 border-b border-r p-2 text-left transition hover:bg-gray-50 ${
-                isSelected ? "bg-gray-100" : ""
-              }`}
+              className={`
+              group
+              min-h-24
+              border-b border-r
+              border-white/[0.05]
+              p-2
+              text-left
+              transition
+              hover:bg-white/[0.025]
+              ${isSelected ? "bg-blue-500/[0.06]" : ""}
+            `}
             >
+              {/* Número + quantidade */}
               <div className="flex items-center justify-between">
                 <span
-                  className={`flex h-7 w-7 items-center justify-center rounded-full text-sm ${
-                    isToday ? "bg-black text-white" : "text-gray-700"
-                  }`}
+                  className={`
+                  flex h-7 w-7
+                  items-center justify-center
+                  rounded-full
+                  text-sm
+                  transition
+                  ${
+                    isToday
+                      ? "bg-blue-600 font-semibold text-white shadow-lg shadow-blue-600/20"
+                      : isSelected
+                        ? "bg-blue-500/10 font-medium text-blue-400"
+                        : "text-slate-400 group-hover:text-white"
+                  }
+                `}
                 >
                   {date.getDate()}
                 </span>
 
                 {dayAppointments.length > 0 && (
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                  <span className="rounded-full border border-blue-400/10 bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-400">
                     {dayAppointments.length}
                   </span>
                 )}
               </div>
 
+              {/* Atendimentos */}
               <div className="mt-2 space-y-1">
                 {dayAppointments.slice(0, 2).map((appointment) => (
                   <div
                     key={appointment.id}
-                    className="truncate rounded bg-gray-100 px-1.5 py-1 text-xs text-gray-700"
+                    className="truncate rounded-lg border border-white/[0.05] bg-[#11161E] px-1.5 py-1 text-[11px] text-slate-400 transition group-hover:border-white/[0.08] group-hover:text-slate-300"
                   >
-                    {appointment.startTime} · {appointment.clientName}
+                    <span className="font-medium text-blue-400">
+                      {appointment.startTime}
+                    </span>
+
+                    <span className="text-slate-600">{" · "}</span>
+
+                    {appointment.clientName}
                   </div>
                 ))}
 
                 {dayAppointments.length > 2 && (
-                  <p className="text-xs text-gray-400">
+                  <p className="px-1 text-[10px] font-medium text-slate-600">
                     + {dayAppointments.length - 2} atendimento(s)
                   </p>
                 )}
