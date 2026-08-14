@@ -13,8 +13,17 @@ import {
   updateAppointmentStatus,
 } from "@/services/appointment.service";
 
+import type { AppointmentPeriod } from "@/components/appointments/AppointmentFilters";
+
+import { AppointmentFilters } from "@/components/appointments/AppointmentFilters";
+
+import { addDays, dateToString, getTodayString } from "@/utils/appointment";
+
 import type { Appointment } from "@/types/appointment";
 
+import { AppointmentCalendar } from "@/components/appointments/AppointmentCalendar";
+
+import { SelectedDateAppointments } from "@/components/appointments/SelectedDateAppointments";
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
@@ -22,6 +31,15 @@ export default function AppointmentsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
+  const [period, setPeriod] = useState<AppointmentPeriod>("NEXT_7_DAYS");
+
+  const [condominium, setCondominium] = useState("");
+
+  const [search, setSearch] = useState("");
+
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
   async function handleStatusChange(
     appointmentId: string,
     status: "COMPLETED" | "CANCELLED",
@@ -52,6 +70,46 @@ export default function AppointmentsPage() {
       setLoading(false);
     }
   }
+
+  const condominiums = Array.from(
+    new Set(appointments.map((appointment) => appointment.condominium)),
+  ).sort();
+
+  const filteredAppointments = appointments.filter((appointment) => {
+    const today = getTodayString();
+
+    const tomorrow = dateToString(addDays(new Date(), 1));
+
+    const nextSevenDays = dateToString(addDays(new Date(), 7));
+
+    let matchesPeriod = true;
+
+    if (period === "TODAY") {
+      matchesPeriod = appointment.date === today;
+    }
+
+    if (period === "TOMORROW") {
+      matchesPeriod = appointment.date === tomorrow;
+    }
+
+    if (period === "NEXT_7_DAYS") {
+      matchesPeriod =
+        appointment.date >= today && appointment.date <= nextSevenDays;
+    }
+
+    const matchesCondominium =
+      !condominium || appointment.condominium === condominium;
+
+    const searchValue = search.toLowerCase().trim();
+
+    const matchesSearch =
+      !searchValue ||
+      appointment.clientName.toLowerCase().includes(searchValue) ||
+      appointment.houseNumber.toLowerCase().includes(searchValue) ||
+      appointment.service.toLowerCase().includes(searchValue);
+
+    return matchesPeriod && matchesCondominium && matchesSearch;
+  });
 
   useEffect(() => {
     loadAppointments();
@@ -86,6 +144,28 @@ export default function AppointmentsPage() {
           </button>
         </div>
 
+        <AppointmentFilters
+          period={period}
+          condominium={condominium}
+          search={search}
+          condominiums={condominiums}
+          onPeriodChange={setPeriod}
+          onCondominiumChange={setCondominium}
+          onSearchChange={setSearch}
+        />
+
+        <AppointmentCalendar
+          appointments={filteredAppointments}
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+          currentMonth={calendarMonth}
+          onMonthChange={setCalendarMonth}
+        />
+
+        <SelectedDateAppointments
+          date={selectedDate}
+          appointments={filteredAppointments}
+        />
         {/* Lista */}
         <div className="rounded-xl border bg-white">
           {loading ? (
@@ -94,14 +174,20 @@ export default function AppointmentsPage() {
                 Carregando agendamentos...
               </p>
             </div>
-          ) : appointments.length === 0 ? (
+          ) : filteredAppointments.length === 0 ? (
             <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
               <CalendarDays className="h-10 w-10 text-gray-300" />
 
-              <h2 className="mt-4 font-semibold">Nenhum agendamento</h2>
+              <h2 className="mt-4 font-semibold">
+                {appointments.length === 0
+                  ? "Nenhum agendamento"
+                  : "Nenhum agendamento encontrado"}
+              </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Seus próximos atendimentos aparecerão aqui.
+                {appointments.length === 0
+                  ? "Crie seu primeiro atendimento."
+                  : "Tente alterar os filtros da agenda."}
               </p>
 
               <button
@@ -115,7 +201,7 @@ export default function AppointmentsPage() {
             </div>
           ) : (
             <div className="divide-y">
-              {appointments.map((appointment) => {
+              {filteredAppointments.map((appointment) => {
                 const isLoading = actionLoading === appointment.id;
 
                 const canChangeStatus = appointment.status === "SCHEDULED";
