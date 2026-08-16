@@ -1,8 +1,4 @@
-import {
-  CalendarDays,
-  Clock3,
-  CheckCircle2,
-} from "lucide-react";
+import { CalendarDays, Clock3, CheckCircle2 } from "lucide-react";
 
 interface DashboardStatsProps {
   today: number;
@@ -44,24 +40,26 @@ export function DashboardStats({
         return (
           <div
             key={stat.label}
-            className="rounded-xl border bg-white p-5"
+            className="rounded-2xl border border-white/[0.08] bg-[#0D1117] p-5 shadow-sm transition hover:border-white/[0.12]"
           >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">
-                {stat.label}
-              </p>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  {stat.label}
+                </p>
+              </div>
 
-              <Icon className="h-5 w-5 text-gray-400" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-500/[0.08]">
+                <Icon className="h-4 w-4 text-blue-400" />
+              </div>
             </div>
 
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-bold">
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="text-3xl font-bold tracking-tight text-white">
                 {stat.value}
               </span>
 
-              <span className="text-sm text-gray-500">
-                {stat.description}
-              </span>
+              <span className="text-sm text-slate-600">{stat.description}</span>
             </div>
           </div>
         );

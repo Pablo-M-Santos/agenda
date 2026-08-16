@@ -10,9 +10,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({
-  children,
-}: AuthProviderProps) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -20,21 +18,23 @@ export function AuthProvider({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
 
-        if (!currentUser && pathname !== "/login") {
-          router.replace("/login");
-        }
+      const publicRoutes = ["/login", "/cadastro"];
 
-        if (currentUser && pathname === "/login") {
-          router.replace("/dashboard");
-        }
+      const isPublicRoute = publicRoutes.includes(pathname);
+
+      if (!currentUser && !isPublicRoute) {
+        router.replace("/login");
+        return;
       }
-    );
+
+      if (currentUser && (pathname === "/login" || pathname === "/cadastro")) {
+        router.replace("/dashboard");
+      }
+    });
 
     return unsubscribe;
   }, [pathname, router]);

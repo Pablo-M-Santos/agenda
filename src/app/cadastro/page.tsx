@@ -1,19 +1,24 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Eye, EyeOff, Loader2, Zap, ArrowRight } from "lucide-react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { ArrowRight, Eye, EyeOff, Loader2, UserPlus, Zap } from "lucide-react";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 import { auth } from "@/lib/firebase/auth";
 
-export default function LoginPage() {
+export default function CadastroPage() {
   const router = useRouter();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,16 +28,50 @@ export default function LoginPage() {
     if (loading) return;
 
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("A senha deve possuir pelo menos 6 caracteres.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password,
+      );
+
+      await updateProfile(credential.user, {
+        displayName: name.trim(),
+      });
 
       router.replace("/dashboard");
-    } catch (error) {
-      console.error("Erro ao realizar login:", error);
+    } catch (error: any) {
+      console.error("Erro ao criar conta:", error);
 
-      setError("E-mail ou senha inválidos.");
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          setError("Este e-mail já está cadastrado.");
+          break;
+
+        case "auth/invalid-email":
+          setError("Informe um e-mail válido.");
+          break;
+
+        case "auth/weak-password":
+          setError("A senha escolhida é muito fraca.");
+          break;
+
+        default:
+          setError("Não foi possível criar sua conta. Tente novamente.");
+      }
     } finally {
       setLoading(false);
     }
@@ -43,7 +82,7 @@ export default function LoginPage() {
       {/* Background */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         {/* Glow azul */}
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/10 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/10 blur-[120px]" />
 
         {/* Glow ciano */}
         <div className="absolute left-[20%] top-[15%] h-64 w-64 rounded-full bg-cyan-400/[0.04] blur-[100px]" />
@@ -71,21 +110,47 @@ export default function LoginPage() {
             AGENDA
           </h1>
 
-          <p className="mt-2 text-sm text-slate-400">Sua agenda, organizada.</p>
+          <p className="mt-2 text-sm text-slate-400">
+            Organize seus atendimentos.
+          </p>
         </div>
 
         {/* Card */}
         <div className="rounded-2xl border border-white/[0.08] bg-[#0D1117]/95 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
           {/* Header */}
           <div className="mb-7">
-            <h2 className="text-xl font-semibold text-white">Entrar</h2>
+            <h2 className="text-xl font-semibold text-white">Criar conta</h2>
 
             <p className="mt-1.5 text-sm leading-6 text-slate-400">
-              Acesse sua agenda de atendimentos.
+              Crie sua conta para começar a organizar sua agenda.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Nome */}
+            <div>
+              <label
+                htmlFor="name"
+                className="mb-2 block text-sm font-medium text-slate-300"
+              >
+                Nome
+              </label>
+
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Seu nome"
+                autoComplete="name"
+                autoFocus
+                required
+                disabled={loading}
+                className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </div>
+
             {/* E-mail */}
             <div>
               <label
@@ -103,7 +168,6 @@ export default function LoginPage() {
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="seu@email.com"
                 autoComplete="email"
-                autoFocus
                 required
                 disabled={loading}
                 className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
@@ -112,24 +176,12 @@ export default function LoginPage() {
 
             {/* Senha */}
             <div>
-              <div className="mb-2 flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-slate-300"
-                >
-                  Senha
-                </label>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    // Implementaremos depois.
-                  }}
-                  className="text-xs font-medium text-slate-500 transition hover:text-blue-400"
-                >
-                  Esqueci minha senha
-                </button>
-              </div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-medium text-slate-300"
+              >
+                Senha
+              </label>
 
               <div className="relative">
                 <input
@@ -139,7 +191,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Digite sua senha"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   disabled={loading}
                   className="w-full rounded-xl border border-white/[0.08] bg-[#080B10] px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:border-blue-500/60 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
@@ -159,6 +211,61 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
+
+              <p className="mt-2 text-xs text-slate-600">
+                Mínimo de 6 caracteres.
+              </p>
+            </div>
+
+            {/* Confirmar senha */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-medium text-slate-300"
+              >
+                Confirmar senha
+              </label>
+
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder="Digite a senha novamente"
+                  autoComplete="new-password"
+                  required
+                  disabled={loading}
+                  className={`w-full rounded-xl border bg-[#080B10] px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/[0.12] focus:ring-4 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    confirmPassword && password !== confirmPassword
+                      ? "border-red-500/40 focus:border-red-500/60 focus:ring-red-500/10"
+                      : "border-white/[0.08] focus:border-blue-500/60 focus:ring-blue-500/10"
+                  }`}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((current) => !current)}
+                  disabled={loading}
+                  aria-label={
+                    showConfirmPassword ? "Ocultar senha" : "Mostrar senha"
+                  }
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-500 transition hover:bg-white/5 hover:text-slate-300 disabled:cursor-not-allowed"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
+              {confirmPassword && password !== confirmPassword && (
+                <p className="mt-2 text-xs text-red-400">
+                  As senhas não coincidem.
+                </p>
+              )}
             </div>
 
             {/* Erro */}
@@ -180,31 +287,30 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Entrando...
+                  Criando conta...
                 </>
               ) : (
                 <>
-                  Entrar
+                  Criar conta
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
             </button>
-            {/* Cadastro */}
-            <div className="mt-6 border-t border-white/[0.06] pt-6 text-center">
-              <p className="text-sm text-slate-500">
-                Ainda não possui uma conta?
-              </p>
-
-              <button
-                type="button"
-                onClick={() => router.push("/cadastro")}
-                className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-400 transition hover:text-blue-300"
-              >
-                Criar minha conta
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
           </form>
+
+          {/* Login */}
+          <div className="mt-6 border-t border-white/[0.06] pt-6 text-center">
+            <p className="text-sm text-slate-500">Já possui uma conta?</p>
+
+            <button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-400 transition hover:text-blue-300"
+            >
+              Entrar na minha conta
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Footer */}
