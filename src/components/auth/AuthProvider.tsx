@@ -22,16 +22,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(currentUser);
       setLoading(false);
 
-      const publicRoutes = ["/login", "/cadastro"];
+      const publicRoutes = ["/login", "/cadastro", "/recuperar-senha"];
 
       const isPublicRoute = publicRoutes.includes(pathname);
 
+     
       if (!currentUser && !isPublicRoute) {
         router.replace("/login");
         return;
       }
 
-      if (currentUser && (pathname === "/login" || pathname === "/cadastro")) {
+      if (currentUser && isPublicRoute) {
         router.replace("/dashboard");
       }
     });

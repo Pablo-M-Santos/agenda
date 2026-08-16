@@ -22,11 +22,23 @@ export default function LoginPage() {
 
     if (loading) return;
 
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setError("Informe seu e-mail.");
+      return;
+    }
+
+    if (!password) {
+      setError("Informe sua senha.");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await signInWithEmailAndPassword(auth, normalizedEmail, password);
 
       router.replace("/dashboard");
     } catch (error) {
@@ -40,15 +52,11 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#05070A] px-4 py-8">
-      {/* Background */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        {/* Glow azul */}
         <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/10 blur-[120px]" />
 
-        {/* Glow ciano */}
         <div className="absolute left-[20%] top-[15%] h-64 w-64 rounded-full bg-cyan-400/[0.04] blur-[100px]" />
 
-        {/* Grid sutil */}
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -59,9 +67,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Conteúdo */}
       <div className="relative z-10 w-full max-w-[420px]">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/10 shadow-[0_0_40px_rgba(37,99,235,0.12)]">
             <Zap className="h-7 w-7 fill-blue-400 text-blue-400" />
@@ -74,9 +80,7 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-slate-400">Sua agenda, organizada.</p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-white/[0.08] bg-[#0D1117]/95 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
-          {/* Header */}
           <div className="mb-7">
             <h2 className="text-xl font-semibold text-white">Entrar</h2>
 
@@ -86,7 +90,6 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* E-mail */}
             <div>
               <label
                 htmlFor="email"
@@ -110,7 +113,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Senha */}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label
@@ -122,9 +124,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    // Implementaremos depois.
-                  }}
+                  onClick={() => router.push("/recuperar-senha")}
                   className="text-xs font-medium text-slate-500 transition hover:text-blue-400"
                 >
                   Esqueci minha senha
@@ -161,7 +161,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Erro */}
             {error && (
               <div
                 role="alert"
@@ -171,7 +170,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Botão */}
             <button
               type="submit"
               disabled={loading}
@@ -189,7 +187,7 @@ export default function LoginPage() {
                 </>
               )}
             </button>
-            {/* Cadastro */}
+
             <div className="mt-6 border-t border-white/[0.06] pt-6 text-center">
               <p className="text-sm text-slate-500">
                 Ainda não possui uma conta?
@@ -207,7 +205,6 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-xs text-slate-600">
             AGENDA
